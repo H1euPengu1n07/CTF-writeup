@@ -20,11 +20,11 @@ Gửi request tới `/avatar/preview`:
 
 ![alt text](image.png)
 
-Kết quả trả về `49` thay vì chuỗi `{{7*7}}`, chứng tỏ endpoint thực thi biểu thức Jinja nằm trong nội dung SVG → đây là lỗ hổng **SSTI (Server-Side Template Injection)** trên Jinja2. Từ SSTI trên Jinja2, mục tiêu tiếp theo là leo lên RCE.
+Kết quả trả về `49` thay vì chuỗi `{{7*7}}`, chứng tỏ endpoint thực thi biểu thức Jinja nằm trong nội dung SVG -> đây là lỗ hổng **SSTI (Server-Side Template Injection)** trên Jinja2. Từ SSTI trên Jinja2, mục tiêu tiếp theo là leo lên RCE.
 
 ## Xác định object Jinja có sẵn
 
-Kỹ thuật SSTI→RCE kinh điển là đi từ một object có sẵn tới `__globals__` rồi tới `os`. Mình thử truy cập trực tiếp một thuộc tính đặc biệt:
+Kỹ thuật SSTI->RCE kinh điển là đi từ một object có sẵn tới `__globals__` rồi tới `os`. Mình thử truy cập trực tiếp một thuộc tính đặc biệt:
 
 ```svg
 <svg xmlns="http://www.w3.org/2000/svg">
@@ -36,7 +36,7 @@ Kết quả:
  
 `SVG template contains unsupported renderer syntax.`
 
-→ Ứng dụng có một blacklist chặn các token nhạy cảm như `__`, `globals`, `import`, `popen`, `system`. Vì vậy không thể viết thẳng `__init__`, `__globals__`… trong payload.
+-> Ứng dụng có một blacklist chặn các token nhạy cảm như `__`, `globals`, `import`, `popen`, `system`. Vì vậy không thể viết thẳng `__init__`, `__globals__`… trong payload.
 
 ## Bypass blacklist bằng `attr()` và `join`
 
@@ -66,7 +66,7 @@ Kết quả trả về là dictionary global của module `jinja2.utils` (module
 
 ### Xác nhận RCE
 
-Từ `os` ta gọi `os.popen(<lệnh>).read()` để chạy lệnh và đọc kết quả. Literal `popen` cũng nằm trong blacklist nên tiếp tục ghép chuỗi bằng `['po','pen']|join`. Chuỗi hoàn chỉnh: lấy `__globals__` → `get('os')` → `popen('cat /etc/hostname')` → `read()`:
+Từ `os` ta gọi `os.popen(<lệnh>).read()` để chạy lệnh và đọc kết quả. Literal `popen` cũng nằm trong blacklist nên tiếp tục ghép chuỗi bằng `['po','pen']|join`. Chuỗi hoàn chỉnh: lấy `__globals__` -> `get('os')` -> `popen('cat /etc/hostname')` -> `read()`:
 
 ```svg
 <svg xmlns="http://www.w3.org/2000/svg">

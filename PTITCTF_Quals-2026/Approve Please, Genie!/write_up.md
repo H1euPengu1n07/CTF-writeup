@@ -18,7 +18,7 @@ Kiểm tra thêm cho thấy tag `<script>`, thuộc tính `onerror` và một s�
 <style>body { color: red; }</style>
 ```
 
-> → Hướng khai thác là CSS injection thay vì XSS
+> -> Hướng khai thác là CSS injection thay vì XSS
 
 ## Leak collector
 

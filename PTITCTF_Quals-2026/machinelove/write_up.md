@@ -22,7 +22,7 @@ Nghĩa là tham số `file` chỉ định đường dẫn tới file cần đọ
 absolute path rejected
 ```
 
-→ Server có filter kiểm tra input và từ chối các đường dẫn tuyệt đối (bắt đầu bằng `/`). Tuy nhiên, filter này kiểm tra chuỗi *sau khi* server đã tự động giải mã một lớp URL encoding, nên nếu mã hóa hai lần thì lớp filter sẽ không nhận ra ký tự nguy hiểm.
+-> Server có filter kiểm tra input và từ chối các đường dẫn tuyệt đối (bắt đầu bằng `/`). Tuy nhiên, filter này kiểm tra chuỗi *sau khi* server đã tự động giải mã một lớp URL encoding, nên nếu mã hóa hai lần thì lớp filter sẽ không nhận ra ký tự nguy hiểm.
 
 ## Khai thác
 
