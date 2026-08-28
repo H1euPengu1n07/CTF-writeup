@@ -8,7 +8,7 @@
 
 ## Recon
 
-Ứng dụng phân quyền dựa trên tham số `user`. Khi sửa `user=admin`, giao diện hiện thêm nút **Staff Portal** - tức là quyền được xác định phía client và có thể tự nâng lên admin:
+Ứng dụng phân quyền dựa trên tham số `user`. Khi sửa `user=admin`, giao diện hiện thêm nút Staff Portal:
 
 ![alt text](image.png)
 
@@ -16,11 +16,9 @@
 
 ## SQLi
 
-Trang Staff Portal có chức năng cập nhật điểm (`points`). Khi chèn ký tự đặc biệt vào tham số, server trả về lỗi và làm lộ nguyên câu truy vấn:
+Trang Staff Portal có chức năng cập nhật điểm (`points`). Khi chèn ký tự đặc biệt vào tham số, server trả về lỗi và làm lộ câu truy vấn:
 
 ![alt text](image-2.png)
-
-Thông báo lỗi làm lộ câu SQL bên dưới:
 
 ```sql
 UPDATE foo SET `points` = '0' WHERE `id` = '1'
@@ -30,7 +28,7 @@ Biết được cấu trúc câu `UPDATE`, ta có thể lợi dụng điểm ch�
 
 ## Đổi mật khẩu admin
 
-Mục tiêu là chiếm tài khoản admin thật. Trước hết tạo một bcrypt hash cho mật khẩu `x`, sau đó dùng SQLi để ghi đè trường `password` của tài khoản admin bằng hash này:
+Tạo một bcrypt hash cho mật khẩu `x`, sau đó dùng SQLi để ghi đè trường `password` của tài khoản admin bằng hash này:
 
 ```bash
 htpasswd -bnBC 5 '' x | cut -d: -f2
@@ -50,7 +48,7 @@ Sau khi đổi mật khẩu thành công, đăng nhập vào tài khoản admin 
 
 ## Log admin
 
-Trong khu vực admin có chức năng xem log, chức năng này cho phép nhập URL để server tự gửi request và trả về nội dung - đây chính là điểm SSRF (server-side request forgery):
+Trong khu vực admin có chức năng xem log, chức năng này cho phép nhập URL để server tự gửi request và trả về nội dung:
 
 ![alt text](image-5.png)
 
@@ -133,7 +131,7 @@ CALL LISTDIR('/data')
 
 ![alt text](image-9.png)
 
-Thấy file `f_04a5c183c5b6.flag`, tiến hành đọc file đó:
+Thấy file `f_04a5c183c5b6.flag`, đọc file đó:
 
 ```sql
 SELECT UTF8TOSTRING(FILE_READ('/data/f_04a5c183c5b6.flag')) AS FLAG

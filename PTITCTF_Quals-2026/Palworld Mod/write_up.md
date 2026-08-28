@@ -35,7 +35,7 @@ Trong `pathlib`, một thành phần bắt đầu bằng `/` là đường dẫn
 
 `python3.11/encodings` có 20 ký tự, vừa với giới hạn độ dài của trường `code` trong model.
 
-Python xử lý tên encoding thông qua `codecs.lookup()`. Khi request chứa một giá trị `charset` chưa được cache, Python sẽ tìm module tương ứng trong package `encodings`. Ví dụ, `charset=xyz` sẽ dẫn tới việc import `encodings.xyz`, code top-level trong `xyz.py` sẽ được thực thi.
+Python xử lý tên encoding thông qua `codecs.lookup()`. Khi request chứa một giá trị `charset` chưa được cache, Python sẽ tìm module tương ứng trong package `encodings`.
 
 Payload có thể đọc biến môi trường chứa flag rồi ghi kết quả vào một file trong `/data/media`.
 
@@ -53,11 +53,6 @@ Trong JSON response, lấy trường `access`. Đây là JWT dùng cho các requ
 
 Tạo platform với giá trị `code` là `python3.11/encodings`. Giá trị này vừa tạo ra thư mục con cần thiết, vừa không vượt quá giới hạn `max_length` của model. Lưu trường `id` trong response làm `PLATFORM_ID`.
 
-Nếu server trả lỗi unique, gửi `GET /api/platforms/` và lấy record có:
-
-```text
-code = python3.11/encodings
-```
 
 ![alt text](image-3.png)
 
@@ -71,19 +66,11 @@ Tạo mod với giá trị `mod_version` là `/usr/local/lib`.
 
 Do `/usr/local/lib` là đường dẫn tuyệt đối, `Path()` sẽ loại bỏ phần `/data/media/builds` đứng trước nó. Lưu `id` của mod làm `MOD_ID`.
 
-Nếu đã tồn tại, dùng `GET /api/mods/` và lấy record có:
-
-```text
-mod_version = /usr/local/lib
-```
-
 Tiếp theo, tạo một build cho mod và platform vừa chuẩn bị. Lưu `id` của build làm `BUILD_ID`.
 
 ![alt text](image-6.png)
 
 ## Tạo ZIP chứa codec payload
-
-Trên máy local, tạo file `payload.zip`. Trong ví dụ này, tên module là `xyz` và file output là `abc.txt`. Tên module, payload và giá trị `charset` phải khớp nhau:
 
 ```bash
 python3 - <<'PY'
@@ -129,7 +116,7 @@ Content-Type: text/plain; charset=xyz
 
 ![alt text](image-8.png)
 
-Giá trị `xyz` phải trùng với tên module `xyz.py`. Khi xử lý request, Python import `encodings.xyz`, chạy code top-level trong payload và tạo file `/data/media/abc.txt`.
+Khi xử lý request, Python import `encodings.xyz`, chạy code top-level trong payload và tạo file `/data/media/abc.txt`.
 
 ## Flag
 

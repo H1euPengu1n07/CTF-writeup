@@ -8,23 +8,17 @@
 
 ## Xác minh SSTI
 
-Ứng dụng nhận vào một file SVG rồi render ra ảnh xem trước. Để kiểm tra xem nội dung SVG có bị đưa qua template engine hay không, mình chèn một biểu thức Jinja đơn giản `{{7*7}}`:
-
-```svg
-<svg xmlns="http://www.w3.org/2000/svg">
-  <text>{{7*7}}</text>
-</svg>
-```
+Ứng dụng nhận vào một file SVG rồi render ra ảnh xem trước. Để kiểm tra xem nội dung SVG có bị đưa qua template engine hay không, mình chèn một biểu thức Jinja đơn giản `{{7*7}}`.
 
 Gửi request tới `/avatar/preview`:
 
 ![alt text](image.png)
 
-Kết quả trả về `49` thay vì chuỗi `{{7*7}}`, chứng tỏ endpoint thực thi biểu thức Jinja nằm trong nội dung SVG -> đây là lỗ hổng **SSTI (Server-Side Template Injection)** trên Jinja2. Từ SSTI trên Jinja2, mục tiêu tiếp theo là leo lên RCE.
+-> SSTI
 
 ## Xác định object Jinja có sẵn
 
-Kỹ thuật SSTI->RCE kinh điển là đi từ một object có sẵn tới `__globals__` rồi tới `os`. Mình thử truy cập trực tiếp một thuộc tính đặc biệt:
+Mình thử truy cập trực tiếp một thuộc tính đặc biệt:
 
 ```svg
 <svg xmlns="http://www.w3.org/2000/svg">
@@ -40,9 +34,9 @@ Kết quả:
 
 ## Bypass blacklist bằng `attr()` và `join`
 
-Ý tưởng bypass: thay vì viết trực tiếp tên thuộc tính chứa từ khóa bị cấm, ta ghép chuỗi tên đó từ nhiều mảnh nhỏ (không mảnh nào trùng token bị chặn) bằng filter `join`, rồi dùng filter `attr()` để truy cập thuộc tính theo tên chuỗi. Ký tự `_` cũng được viết dưới dạng escape `\x5f` để không xuất hiện chuỗi `__` trong payload.
+Ý tưởng bypass: thay vì viết trực tiếp tên thuộc tính trên, ta ghép chuỗi tên đó từ nhiều mảnh nhỏ (không mảnh nào trùng token bị chặn) bằng filter `join`, rồi dùng filter `attr()` để truy cập thuộc tính theo tên chuỗi. Ký tự `_` cũng được viết dưới dạng escape `\x5f` để không xuất hiện chuỗi `__` trong payload.
 
-Ví dụ truy cập `__init__` của `cycler`:
+Truy cập `__init__` của `cycler`:
 
 ```svg
 <svg xmlns="http://www.w3.org/2000/svg">
@@ -52,7 +46,7 @@ Ví dụ truy cập `__init__` của `cycler`:
 
 ![alt text](image-1.png)
 
-Tiếp theo, dùng đúng kỹ thuật đó để truy cập `__globals__`:
+Tiếp theo, truy cập `__globals__`:
 
 ```svg
 <svg xmlns="http://www.w3.org/2000/svg">
@@ -60,13 +54,13 @@ Tiếp theo, dùng đúng kỹ thuật đó để truy cập `__globals__`:
 </svg>
 ```
 
-Kết quả trả về là dictionary global của module `jinja2.utils` (module chứa hàm `lipsum`). Trong dictionary này có sẵn key `os`, tức là ta đã tiếp cận được module `os` để chạy lệnh hệ thống.
+Kết quả trả về là dictionary global của module `jinja2.utils`. Trong dictionary này có sẵn key `os`, tức là ta đã tiếp cận được module `os` để chạy lệnh hệ thống.
 
 ![alt text](image-2.png)
 
 ### Xác nhận RCE
 
-Từ `os` ta gọi `os.popen(<lệnh>).read()` để chạy lệnh và đọc kết quả. Literal `popen` cũng nằm trong blacklist nên tiếp tục ghép chuỗi bằng `['po','pen']|join`. Chuỗi hoàn chỉnh: lấy `__globals__` -> `get('os')` -> `popen('cat /etc/hostname')` -> `read()`:
+Từ `os` ta gọi `os.popen(<lệnh>).read()` để chạy lệnh và đọc kết quả. Literal `popen` cũng nằm trong blacklist nên tiếp tục ghép chuỗi bằng `['po','pen']|join`.
 
 ```svg
 <svg xmlns="http://www.w3.org/2000/svg">
@@ -74,13 +68,13 @@ Từ `os` ta gọi `os.popen(<lệnh>).read()` để chạy lệnh và đọc k�
 </svg>
 ```
 
-Kết quả nhận được là hostname của máy chủ, xác nhận đã đạt được **RCE**:
+Kết quả nhận được là hostname của máy chủ, xác nhận được RCE:
 
 ![alt text](image-4.png)
 
 ### Tìm file flag
 
-Tận dụng RCE, dùng lệnh `find` để tìm file flag trên hệ thống:
+Dùng lệnh `find` để tìm file flag trên hệ thống:
 
 ```svg
 <svg xmlns="http://www.w3.org/2000/svg">

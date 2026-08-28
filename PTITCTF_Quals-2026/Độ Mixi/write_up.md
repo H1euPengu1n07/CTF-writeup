@@ -14,7 +14,7 @@ Vũ có cần anh đọc cho nghe một số thông tin không? Vũ ơi em còn 
 
 ### `src/sanitizer.py`
 
-Sanitizer loại bỏ JavaScript (không cho `<script>`, các thuộc tính `on*`…) nhưng vẫn cho phép thẻ `<a>` cùng các thuộc tính `id`, `name`, `href`. Đây là tổ hợp then chốt để thực hiện **DOM Clobbering**:
+Sanitizer loại bỏ JavaScript (không cho `<script>`, các thuộc tính `on*`…) nhưng vẫn cho phép thẻ `<a>` cùng các thuộc tính `id`, `name`, `href`.
 
 ```py
 ALLOWED_TAGS có "a"
@@ -46,7 +46,7 @@ Khi thẻ `<a>` bị ép thành chuỗi, nó trả về chính giá trị `href`
 
 ### `src/bot.py`
 
-Bot đóng vai reviewer (có cookie/token quyền cao) và tin tưởng dùng thẳng các URL đọc được từ `window.syncConfig` - vốn lại do chính message của attacker tạo ra. Đây là mấu chốt biến DOM Clobbering thành một dạng SSRF có xác thực.
+Bot đóng vai reviewer và dùng thẳng các URL đọc được từ `window.syncConfig` do chính message của attacker tạo ra.
 
 Bot gắn token reviewer vào mọi request:
 
@@ -70,7 +70,7 @@ read_sink = read_property(window, GADGET, "readSink") or DEFAULT_SINK
 post_text(read_sink, "[Độ Mixi] Nội dung sao lưu: " + content)
 ```
 
-Do đó mình chỉ cần trỏ `source` tới `/api/file` và hai sink (`statusSink`, `readSink`) tới `/api/feedback`. Bot sẽ tự đọc file nội bộ bằng cookie reviewer rồi đăng nội dung lên tường message công khai - nơi attacker có thể đọc được mà không cần bất kỳ quyền nào.
+Do đó mình chỉ cần trỏ `source` tới `/api/file` và hai sink (`statusSink`, `readSink`) tới `/api/feedback`. Bot sẽ tự đọc file nội bộ bằng cookie reviewer rồi đăng nội dung lên tường message công khai.
 
 ## Khai thác
 

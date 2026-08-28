@@ -42,7 +42,7 @@ Vì collector biến một request của trình duyệt thành dữ liệu có t
 
 ## CSS prefix oracle
 
-Ý tưởng: dùng CSS selector `[value^="..."]` (khớp tiền tố) kết hợp `:has()` để kiểm tra từng ký tự của flag. Nếu giá trị của `#flag-holder` bắt đầu đúng bằng tiền tố đang đoán, rule CSS được kích hoạt và trình duyệt sẽ tải `background-image`, tức là bắn một request về collector:
+Ý tưởng: dùng CSS selector `[value^="..."]` kết hợp `:has()` để kiểm tra từng ký tự của flag. Nếu giá trị của `#flag-holder` bắt đầu đúng bằng tiền tố đang đoán, rule CSS được kích hoạt và trình duyệt sẽ tải `background-image`, tức là trả một request về collector:
 
 ```css
 body:has(#flag-holder[value^="PTITCTF{a"]) {
@@ -50,7 +50,7 @@ body:has(#flag-holder[value^="PTITCTF{a"]) {
 }
 ```
 
-Nói cách khác, query `x=prefix_a` chỉ xuất hiện trong `/leaks/TOKEN` khi và chỉ khi `a` là ký tự đúng tiếp theo. Lặp lại với mọi ký tự ứng viên, ta suy ra được từng ký tự của flag - đây chính là một CSS exfiltration oracle. Script bên dưới tự động hóa toàn bộ quá trình này.
+Nói cách khác, query `x=prefix_a` chỉ xuất hiện trong `/leaks/TOKEN` khi và chỉ khi `a` là ký tự đúng tiếp theo. Lặp lại với mọi ký tự, ta suy ra được từng ký tự của flag.
 
 ## Admin bot
 
